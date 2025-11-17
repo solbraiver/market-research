@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 export default async function handler(
@@ -20,7 +20,8 @@ export default async function handler(
     return res.status(400).json({ error: "Missing required fields" });
   }
 
-  const ai = new GoogleGenAI({ apiKey });
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   const prompt = `
 あなたは専門の市場調査アナリストです。
@@ -39,11 +40,10 @@ export default async function handler(
 `;
 
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-    });
-    return res.status(200).json({ text: response.text });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    return res.status(200).json({ text });
   } catch (error) {
     console.error("Error generating research plan:", error);
     return res.status(500).json({ error: "Failed to generate research plan" });
