@@ -1,0 +1,5 @@
+{
+  "name": "Market Research Analyst AI",
+  "description": "An AI-powered application that acts as a market research analyst and concept designer. It guides users through a structured research process, from setting a theme to generating a comprehensive final report using web search capabilities.",
+  "requestFramePermissions": []
+}
