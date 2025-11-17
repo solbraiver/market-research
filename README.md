@@ -59,14 +59,18 @@ AI-powered market research analyst and concept designer application. Guides user
 ## Project Structure
 
 ```
-├── api/                    # Vercel Serverless Functions
-│   ├── generate-plan.ts    # Research plan generation endpoint
-│   └── generate-report.ts  # Full report generation endpoint
-├── components/             # React UI components
-├── services/               # Frontend services
-│   └── geminiService.ts    # API client for serverless functions
-├── vercel.json             # Vercel configuration
-└── vite.config.ts          # Vite build configuration
+├── app/                         # Next.js App Router
+│   ├── api/                     # API Routes
+│   │   ├── generate-plan/       # Research plan generation endpoint
+│   │   └── generate-report/     # Full report generation endpoint
+│   ├── layout.tsx               # Root layout
+│   ├── page.tsx                 # Main page
+│   └── globals.css              # Global styles
+├── components/                  # React UI components
+├── services/                    # Frontend services
+│   └── geminiService.ts         # API client
+├── types.ts                     # TypeScript type definitions
+└── vercel.json                  # Vercel configuration
 ```
 
 ## API Security
@@ -82,8 +86,8 @@ The Gemini API key is securely stored on the server-side (Vercel Serverless Func
 
 ## Tech Stack
 
-- **Frontend:** React 19, TypeScript, Vite
+- **Framework:** Next.js 14 (App Router)
+- **Frontend:** React 18, TypeScript
 - **Styling:** Tailwind CSS
-- **Backend:** Vercel Serverless Functions
 - **AI:** Google Gemini API (@google/genai)
 - **Deployment:** Vercel
