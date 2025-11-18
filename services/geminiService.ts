@@ -10,7 +10,8 @@ const generatePlan = async (targetMarket: string, offerCategory: string): Promis
 
         if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.error || 'Failed to generate research plan');
+            const errorMsg = error.details ? `${error.error}: ${error.details}` : error.error;
+            throw new Error(errorMsg || 'Failed to generate research plan');
         }
 
         const data = await response.json();
@@ -33,7 +34,8 @@ const generateFullReport = async (targetMarket: string, offerCategory: string, r
 
         if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.error || 'Failed to generate full report');
+            const errorMsg = error.details ? `${error.error}: ${error.details}` : error.error;
+            throw new Error(errorMsg || 'Failed to generate full report');
         }
 
         const data = await response.json();

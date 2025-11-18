@@ -75,9 +75,19 @@ ${researchPlan}
         tools: [{ googleSearch: {} }],
       },
     })
-    return NextResponse.json({ text: response.text })
-  } catch (error) {
+
+    const text = response.text
+    if (!text) {
+      return NextResponse.json({ error: 'Empty response from Gemini API' }, { status: 500 })
+    }
+
+    return NextResponse.json({ text })
+  } catch (error: unknown) {
     console.error('Error generating full report:', error)
-    return NextResponse.json({ error: 'Failed to generate full report' }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({
+      error: 'Failed to generate full report',
+      details: errorMessage
+    }, { status: 500 })
   }
 }

@@ -2,20 +2,22 @@ import { GoogleGenAI } from '@google/genai'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
-  const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) {
-    return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
-  }
+  try {
+    const apiKey = process.env.GEMINI_API_KEY
+    if (!apiKey) {
+      return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
+    }
 
-  const { targetMarket, offerCategory } = await request.json()
+    const body = await request.json()
+    const { targetMarket, offerCategory } = body
 
-  if (!targetMarket || !offerCategory) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
-  }
+    if (!targetMarket || !offerCategory) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
 
-  const ai = new GoogleGenAI({ apiKey })
+    const ai = new GoogleGenAI({ apiKey })
 
-  const prompt = `
+    const prompt = `
 あなたは専門の市場調査アナリストです。
 以下のテーマ設定に基づき、詳細なリサーチ計画を提示してください。
 
@@ -31,14 +33,23 @@ export async function POST(request: NextRequest) {
 上記3項目を明確に分けて、箇条書きで分かりやすく記述してください。
 `
 
-  try {
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
     })
-    return NextResponse.json({ text: response.text })
-  } catch (error) {
+
+    const text = response.text
+    if (!text) {
+      return NextResponse.json({ error: 'Empty response from Gemini API' }, { status: 500 })
+    }
+
+    return NextResponse.json({ text })
+  } catch (error: unknown) {
     console.error('Error generating research plan:', error)
-    return NextResponse.json({ error: 'Failed to generate research plan' }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({
+      error: 'Failed to generate research plan',
+      details: errorMessage
+    }, { status: 500 })
   }
 }
