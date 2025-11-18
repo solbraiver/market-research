@@ -1,26 +1,19 @@
-import { GoogleGenAI } from "@google/genai";
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { GoogleGenAI } from '@google/genai'
+import { NextRequest, NextResponse } from 'next/server'
 
-export default async function handler(
-  req: VercelRequest,
-  res: VercelResponse
-) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
-  const apiKey = process.env.GEMINI_API_KEY;
+export async function POST(request: NextRequest) {
+  const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) {
-    return res.status(500).json({ error: "API key not configured" });
+    return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
   }
 
-  const { targetMarket, offerCategory } = req.body;
+  const { targetMarket, offerCategory } = await request.json()
 
   if (!targetMarket || !offerCategory) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = new GoogleGenAI({ apiKey })
 
   const prompt = `
 あなたは専門の市場調査アナリストです。
@@ -36,16 +29,16 @@ export default async function handler(
 3. 情報収集先・期間（例：直近12ヶ月／国内外の主要な情報源）
 
 上記3項目を明確に分けて、箇条書きで分かりやすく記述してください。
-`;
+`
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: 'gemini-2.5-flash',
       contents: prompt,
-    });
-    return res.status(200).json({ text: response.text });
+    })
+    return NextResponse.json({ text: response.text })
   } catch (error) {
-    console.error("Error generating research plan:", error);
-    return res.status(500).json({ error: "Failed to generate research plan" });
+    console.error('Error generating research plan:', error)
+    return NextResponse.json({ error: 'Failed to generate research plan' }, { status: 500 })
   }
 }

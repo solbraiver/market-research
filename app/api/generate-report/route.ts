@@ -1,26 +1,21 @@
-import { GoogleGenAI } from "@google/genai";
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { GoogleGenAI } from '@google/genai'
+import { NextRequest, NextResponse } from 'next/server'
 
-export default async function handler(
-  req: VercelRequest,
-  res: VercelResponse
-) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+export const maxDuration = 60 // Allow up to 60 seconds for report generation
 
-  const apiKey = process.env.GEMINI_API_KEY;
+export async function POST(request: NextRequest) {
+  const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) {
-    return res.status(500).json({ error: "API key not configured" });
+    return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
   }
 
-  const { targetMarket, offerCategory, researchPlan } = req.body;
+  const { targetMarket, offerCategory, researchPlan } = await request.json()
 
   if (!targetMarket || !offerCategory || !researchPlan) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = new GoogleGenAI({ apiKey })
 
   const prompt = `
 あなたは専門の市場調査アナリスト兼コンセプトデザイナーです。
@@ -70,19 +65,19 @@ ${researchPlan}
 – **出典URLを省略せず必ず明記**してください。
 – 推測・仮説部分は「**【仮説】**」と明記してください。
 – 誇張・断定表現を避け、「〜と推察される」「〜の可能性が高い」といった慎重な言い回しを用いてください。
-`;
+`
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-pro",
+      model: 'gemini-2.5-pro',
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
       },
-    });
-    return res.status(200).json({ text: response.text });
+    })
+    return NextResponse.json({ text: response.text })
   } catch (error) {
-    console.error("Error generating full report:", error);
-    return res.status(500).json({ error: "Failed to generate full report" });
+    console.error('Error generating full report:', error)
+    return NextResponse.json({ error: 'Failed to generate full report' }, { status: 500 })
   }
 }
