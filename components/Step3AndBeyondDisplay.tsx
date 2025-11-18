@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
-import ReactMarkdown from 'https://esm.sh/react-markdown@9';
-import remarkGfm from 'https://esm.sh/remark-gfm@4';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import ClipboardIcon from './icons/ClipboardIcon';
 import HtmlIcon from './icons/HtmlIcon';
 
